@@ -1,9 +1,17 @@
 import { useState } from 'react';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase.config';
 import { Link, useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg';
 import visibilityIcon from '../assets/svg/visibilityIcon.svg';
 
 function SignUp() {
+  // State management
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -11,10 +19,13 @@ function SignUp() {
     password: '',
   });
 
-  const navigate = useNavigate();
-
+  // Deconstructing the data from form
   const { name, email, password } = formData;
 
+  // Initialize navigation
+  const navigate = useNavigate();
+
+  // Function that update the form data based on the 'id' entered on inputs
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -22,19 +33,53 @@ function SignUp() {
     }));
   };
 
+  // Sign up new users
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const auth = getAuth();
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const user = userCredential.user;
+
+      updateProfile(auth.currentUser, {
+        displayName: name,
+      });
+
+      // Add user to Firestore
+      const formDataCopy = { ...formData };
+      delete formDataCopy.password;
+      formDataCopy.timestamp = serverTimestamp();
+      await setDoc(doc(db, 'users', user.uid), formDataCopy);
+
+      navigate('/');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  ///////////////////////////////////////
+  // Rendering the component
+  ///////////////////////////////////////
   return (
     <>
       <div className="pageContainer">
         <header>
-          <p className="pageHeader">Welcome Back!</p>
+          <p className="pageHeader">Welcome!</p>
         </header>
-        <form>
+        <form onSubmit={onSubmit}>
           <input
             type="text"
             className="nameInput"
             placeholder="Name"
             id="name"
-            value={email}
+            value={name}
             onChange={onChange}
           />
 
@@ -46,6 +91,7 @@ function SignUp() {
             value={email}
             onChange={onChange}
           />
+
           <div className="passwordInputDiv">
             <input
               type={showPassword ? 'text' : 'password'}
