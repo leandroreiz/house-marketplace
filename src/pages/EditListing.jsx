@@ -64,7 +64,8 @@ function EditListing() {
 
       navigate('/sign-in');
     });
-  }, [auth, formData, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch listing to edit
   useEffect(() => {
