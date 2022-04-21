@@ -18,7 +18,17 @@ function ListingItem({ listing, id, onEdit, onDelete }) {
         />
         <div className="categoryListingDetails">
           <p className="categoryListingLocation">{listing.location}</p>
-          <p className="categoryListingName">{listing.name}</p>
+          <p className="categoryListingName">
+            {listing.name}{' '}
+            {onDelete && (
+              <DeleteIcon
+                className="removeIcon"
+                fill="rgb(231, 76, 60)"
+                onClick={onDelete}
+              />
+            )}
+            {onEdit && <EditIcon className="editIcon" onClick={onEdit} />}
+          </p>
           <p className="categoryListingPrice">
             €
             {listing.offer
@@ -47,16 +57,6 @@ function ListingItem({ listing, id, onEdit, onDelete }) {
           </div>
         </div>
       </Link>
-
-      {onDelete && (
-        <DeleteIcon
-          className="removeIcon"
-          fill="rgb(231, 76, 60)"
-          onClick={onDelete}
-        />
-      )}
-
-      {onEdit && <EditIcon className="editIcon" onClick={onEdit} />}
     </li>
   );
 }
